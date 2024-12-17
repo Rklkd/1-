@@ -1,0 +1,201 @@
+#include <iostream>  
+#include <vector> 
+#include <initializer_list> 
+#include <string>  
+#include <exception> 
+
+// Объявление класса ExceptionHandler, наследующего от std::exception
+class ExceptionHandler : public std::exception {
+private:
+    std::string message;  // Определение приватного члена message, который будет хранить сообщение об ошибке
+public:
+    // Определение публичного конструктора ExceptionHandler, принимающего строку сообщения и инициализирующего член message
+    ExceptionHandler(const std::string& msg) : message(msg) {}
+    // Переопределение метода what() для возвращения сообщения об ошибке
+    const char* what() const noexcept override {
+        return message.c_str();
+    }
+};
+
+// Объявление шаблонного класса SmartPointer, управляемого указателя на объект типа T
+template <typename T>
+class SmartPointer {
+private:
+    T* ptr;  // Определение приватного члена ptr, который указывает на управляемый объект
+public:
+    // Определение публичного конструктора, инициализирующего ptr переданным указателем или nullptr
+    SmartPointer(T* p = nullptr) : ptr(p) {}
+    // Определение деструктора, удаляющего управляемый объект
+    ~SmartPointer() { delete ptr; }
+    
+    // Определение оператора разыменования *, возвращающего ссылку на управляемый объект
+    T& operator*() { return *ptr; }
+    // Определение оператора доступа к членам объекта ->, возвращающего указатель ptr
+    T* operator->() { return ptr; }
+    
+    SmartPointer(const SmartPointer& other) = delete;  // Запрет на копирование умного указателя путем удаления конструктора копирования
+    SmartPointer& operator=(const SmartPointer& other) = delete;  // Запрет на копирующее присваивание путем удаления копирующего оператора присваивания
+    
+    // Определение конструктора перемещения, который инициализирует ptr указателем из другого объекта и обнуляет указатель другого объекта
+    SmartPointer(SmartPointer&& other) noexcept : ptr(other.ptr) { other.ptr = nullptr; }
+    // Определение перемещающего оператора присваивания, который удаляет текущий управляемый объект, присваивает указатель из другого объекта и обнуляет указатель другого объекта
+    SmartPointer& operator=(SmartPointer&& other) noexcept {
+        if (this != &other) {
+            delete ptr;
+            ptr = other.ptr;
+            other.ptr = nullptr;
+        }
+        return *this;
+    }
+};
+
+// Объявление шаблонного класса Stack, представляющего стек элементов типа T
+template <typename T>
+class Stack {
+private:
+    std::vector<T> data;  // Определение приватного члена data типа std::vector<T>, хранящего элементы стека
+
+public:
+    // Определение конструктора по умолчанию, инициализирующего пустой вектор
+    Stack() : data() {}
+
+    // Определение конструктора от списка инициализации, инициализирующего вектор переданными значениями
+    Stack(std::initializer_list<T> initList) : data(initList) {}
+
+    // Определение конструктора копирования, который инициализирует вектор данными из другого стека
+    Stack(const Stack& other) : data(other.data) {}
+
+    // Определение копирующего оператора присваивания, который копирует данные из другого стека, если текущий объект не равен другому объекту
+    Stack& operator=(const Stack& other) {
+        if (this != &other) {
+            data = other.data;
+        }
+        return *this;
+    }
+
+    // Определение конструктора перемещения, который перемещает данные из другого стека
+    Stack(Stack&& other) noexcept : data(std::move(other.data)) {}
+
+    // Определение перемещающего оператора присваивания, который перемещает данные из другого стека, если текущий объект не равен другому объекту
+    Stack& operator=(Stack&& other) noexcept {
+        if (this != &other) {
+            data = std::move(other.data);
+        }
+        return *this;
+    }
+
+    // Определение метода push, добавляющего элемент в конец вектора
+    void push(const T& value) {
+        data.push_back(value);
+    }
+
+    // Определение метода pop, удаляющего последний элемент вектора и выбрасывающего исключение, если стек пуст
+    void pop() {
+        if (data.empty()) {
+            throw ExceptionHandler("Stack underflow: Cannot pop from an empty stack");
+        }
+        data.pop_back();
+    }
+
+    // Определение метода top, возвращающего последний элемент вектора и выбрасывающего исключение, если стек пуст
+    T& top() {
+        if (data.empty()) {
+            throw ExceptionHandler("Stack is empty: Cannot get top element");
+        }
+        return data.back();
+    }
+
+    // Определение метода isEmpty, проверяющего, пуст ли стек
+    bool isEmpty() const {
+        return data.empty();
+    }
+
+    // Определение метода size, возвращающего количество элементов в стеке
+    std::size_t size() const {
+        return data.size();
+    }
+};
+
+// Определение функции displayMenu, выводящей меню операций со стеком
+void displayMenu() {
+    std::cout << "1. Push element\n";
+    std::cout << "2. Pop element\n";
+    std::cout << "3. Get top element\n";
+    std::cout << "4. Check if stack is empty\n";
+    std::cout << "5. Get stack size\n";
+    std::cout << "6. Exit\n";
+}
+
+// Определение шаблонной функции stackOperations, выполняющей операции со стеком типа T
+template <typename T>
+void stackOperations(Stack<T>& stack) {
+    int choice;  // Определение переменной choice для выбора действия
+    T value;  // Определение переменной value для хранения значения элемента стека
+
+    do {
+        displayMenu();  // Вызов функции displayMenu, отображающей меню операций
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;  // Запрос выбора действия у пользователя
+
+        try {
+            switch (choice) {
+            case 1:
+                std::cout << "Enter value to push: ";
+                std::cin >> value;  // Запрос значения элемента у пользователя
+                stack.push(value);  // Добавление элемента в стек
+                break;
+            case 2:
+                stack.pop();  // Удаление последнего элемента из стека
+                std::cout << "Element popped\n";
+                break;
+            case 3:
+                std::cout << "Top element: " << stack.top() << "\n";  // Получение и вывод верхнего элемента стека
+                break;
+            case 4:
+                std::cout << (stack.isEmpty() ? "Stack is empty\n" : "Stack is not empty\n");  // Проверка и вывод информации о том, пуст ли стек
+                break;
+            case 5:
+                std::cout << "Stack size: " << stack.size() << "\n";  // Вывод размера стека
+                break;
+            case 6:
+                std::cout << "Exiting...\n";
+                break;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";  // Обработка некорректного ввода
+            }
+        } catch (const ExceptionHandler& ex) {
+            std::cerr << "Exception: " << ex.what() << std::endl;  // Вывод сообщения об исключении, если оно возникло
+        }
+
+    } while (choice != 6);  // Цикл do-while, который выполняется до тех пор, пока choice не равен 6
+}
+
+int main() {
+    Stack<int> intStack;  // Создание объекта стека для типа int
+    Stack<double> doubleStack;  // Создание объекта стека для типа double
+    Stack<std::string> stringStack;  // Создание объекта стека для типа std::string
+
+    std::cout << "Choose stack type:\n";
+    std::cout << "1. int\n";
+    std::cout << "2. double\n";
+    std::cout << "3. std::string\n";
+    std::cout << "Enter your choice: ";
+    int stackType;  // Определение переменной stackType для выбора типа стека
+    std::cin >> stackType;  // Запрос выбора типа стека у пользователя
+
+    switch (stackType) {
+    case 1:
+        stackOperations(intStack);  // Вызов функции операций со стеком для типа int
+        break;
+    case 2:
+        stackOperations(doubleStack);  // Вызов функции операций со стеком для типа double
+        break;
+    case 3:
+        stackOperations(stringStack);  // Вызов функции операций со стеком для
+                break;
+    default:
+        std::cout << "Invalid choice. Exiting...\n";  // Обработка некорректного выбора типа стека
+    }
+
+    return 0;
+}
