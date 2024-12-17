@@ -1,0 +1,97 @@
+#include <iostream>
+#include <string>
+
+namespace containers {
+
+template <typename T>
+class NameClass {
+public:
+    struct Node {
+        T value;
+
+        Node(const T& val) : value(val) {}
+        Node(T&& val) : value(std::move(val)) {}
+
+        Node* prev;
+        Node* next;
+    };
+
+    // Конструктор по умолчанию
+    NameClass() : head(nullptr), tail(nullptr), size(0) {}
+
+    // Конструктор от std::initializer_list<T>
+    NameClass(const std::initializer_list<T>& initList) : head(nullptr), tail(nullptr), size(0) {
+        for (const auto& val : initList) {
+            push_back(val);
+        }
+    }
+
+    // Конструктор копирования
+    NameClass(const NameClass<T>& other) : head(nullptr), tail(nullptr), size(0) {
+        Node* current = other.head;
+        while (current) {
+            push_back(current->value);
+            current = current->next;
+        }
+    }
+
+    // Копирующий оператор присваивания
+    NameClass<T>& operator=(const NameClass<T>& other) {
+        if (this != &other) {
+            clear();
+            Node* current = other.head;
+            while (current) {
+                push_back(current->value);
+                current = current->next;
+            }
+        }
+        return *this;
+    }
+
+    // Конструктор перемещения
+    NameClass(NameClass<T>&& other) : head(other.head), tail(other.tail), size(other.size) {
+        other.head = nullptr;
+        other.tail = nullptr;
+        other.size = 0;
+    }
+
+    // Перемещающий оператор присваивания
+    NameClass<T>& operator=(NameClass<T>&& other) {
+        if (this != &other) {
+            clear();
+            head = other.head;
+            tail = other.tail;
+            size = other.size;
+            other.head = nullptr;
+            other.tail = nullptr;
+            other.size = 0;
+        }
+        return *this;
+    }
+
+    // Деструктор
+    ~NameClass() {
+        clear();
+    }
+
+    // Добавление элемента в конец списка
+    void push_back(const T& value) {
+        Node* newNode = new Node(value);
+        if (head == nullptr) {
+            head = newNode;
+            tail = newNode;
+        } else {
+            tail->next = newNode;
+            newNode->prev = tail;
+            tail = newNode;
+        }
+        size++;
+    }
+
+    // Добавление элемента в начало списка
+    void push_front(const T& value) {
+        Node* newNode = new Node(value);
+        if (head == nullptr) {
+            head = newNode;
+            tail = newNode;
+        } else {
