@@ -1,0 +1,23 @@
+#include <iostream>
+#include <iomanip>
+
+// Манипулятор для вывода сообщения
+std::ostream& print_message(std::ostream& os) {
+    return os << "Custom Message: ";
+}
+
+// Манипулятор для установки шестнадцатеричного вывода и символа заполнения '$'
+std::ostream& hex_with_fill(std::ostream& os) {
+    os << std::hex << std::setfill('$');
+    return os;
+}
+
+int main() {
+    int number = 255;
+
+    // Использование манипуляторов
+    std::cout << print_message << "This is a custom message." << std::endl;
+    std::cout << hex_with_fill << std::setw(10) << number << std::endl;
+
+    return 0;
+}
