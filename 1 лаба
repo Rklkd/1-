@@ -1,0 +1,77 @@
+#include <iostream>
+#include <cmath>
+
+class CustomException : public std::exception {
+public:
+    CustomException(const std::string& message, double value, int code) 
+        : message_(message), value_(value), code_(code) {}
+
+    const char* what() const noexcept override {
+        return message_.c_str();
+    }
+
+    double getValue() const {
+        return value_;
+    }
+
+    int getCode() const {
+        return code_;
+    }
+
+private:
+    std::string message_;
+    double value_;
+    int code_;
+};
+
+double calculateZ1(double& x) {
+    try {
+        if (x <= 0) {
+            throw CustomException("Ошибка: Деление на ноль или корень из отрицательного числа", x, 1);
+        }
+
+        return sqrt((3 * x + 2) * (3 * x + 2) - 24 * x) / (3 * sqrt(x) - 2 / sqrt(x));
+    } catch (const CustomException& ex) {
+        std::cerr << "Ошибка: " << ex.what() << std::endl;
+        std::cerr << "Значение, которое привело к ошибке: " << ex.getValue() << std::endl;
+        std::cerr << "Код ошибки: " << ex.getCode() << std::endl;
+        return 0.0; // Возврат 0.0 в случае ошибки
+    }
+}
+
+double calculateZ2(double& x) {
+    if (x < 0) {
+        throw CustomException("Ошибка: Корень из отрицательного числа", x, 2);
+    }
+    return -sqrt(x);
+}
+
+int main() {
+    double x;
+
+    std::cout << "Введите значение x: ";
+    std::cin >> x;
+
+    double z1, z2;
+
+    try {
+        z1 = calculateZ1(x);
+        z2 = calculateZ2(x);
+
+        std::cout << "Z1: " << z1 << std::endl;
+        std::cout << "Z2: " << z2 << std::endl;
+
+        if (std::abs(z1 - z2) < 1e-6) {
+            std::cout << "Значения Z1 и Z2 приблизительно равны." << std::endl;
+        } else {
+            std::cout << "Значения Z1 и Z2 не равны." << std::endl;
+        }
+    } catch (const CustomException& ex) {
+        std::cerr << "Ошибка: " << ex.what() << std::endl;
+        std::cerr << "Значение, которое привело к ошибке: " << ex.getValue() << std::endl;
+        std::cerr << "Код ошибки: " << ex.getCode() << std::endl;
+    }
+
+    return 0;
+}
+
