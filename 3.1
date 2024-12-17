@@ -1,0 +1,52 @@
+#include <iostream>
+
+template <typename T>
+class Node {
+public:
+    T value;
+    Node* prev;
+    Node* next;
+
+    Node(T val) : value(val), prev(nullptr), next(nullptr) {}
+};
+
+template <typename T, typename ServerClass = Node<T>>
+class SparseArray {
+public:
+    SparseArray() : head(nullptr), tail(nullptr) {}
+
+    void add(T value) {
+        ServerClass* newNode = new ServerClass(value);
+        if (tail) {
+            tail->next = newNode;
+            newNode->prev = tail;
+            tail = newNode;
+        } else {
+            head = tail = newNode;
+        }
+    }
+
+    void display() {
+        ServerClass* current = head;
+        while (current) {
+            std::cout << current->value << " ";
+            current = current->next;
+        }
+        std::cout << std::endl;
+    }
+
+private:
+    ServerClass* head;
+    ServerClass* tail;
+};
+
+int main() {
+    SparseArray<int> sparseArray;
+    sparseArray.add(1);
+    sparseArray.add(2);
+    sparseArray.add(3);
+
+    sparseArray.display();
+    
+    return 0;
+}
