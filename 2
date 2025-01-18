@@ -3,12 +3,15 @@
 
 namespace containers {
 
+// Определение шаблонного класса NameClass
 template <typename T>
 class NameClass {
 public:
+    // Определение структуры узла (Node) для хранения значений и указателей на предыдущий и следующий узлы
     struct Node {
         T value;
 
+        // Конструкторы узла: принимающий lvalue-ссылку и rvalue-ссылку на значение
         Node(const T& val) : value(val) {}
         Node(T&& val) : value(std::move(val)) {}
 
@@ -95,3 +98,29 @@ public:
             head = newNode;
             tail = newNode;
         } else {
+            // Здесь завершается ваш предоставленный код. Я добавлю пару строк, чтобы завершить функцию push_front
+            head->prev = newNode;
+            newNode->next = head;
+            head = newNode;
+        }
+        size++;
+    }
+
+    // Другие методы, такие как clear(), можно реализовать по аналогии, если необходимо.
+    // Не забывайте освободить выделенную память в деструкторе и в методе clear().
+
+private:
+    Node* head;
+    Node* tail;
+    std::size_t size;
+};
+
+} // namespace containers
+
+int main() {
+    containers::NameClass<int> list = {1, 2, 3, 4, 5};
+    list.push_back(6);
+    list.push_front(0);
+
+    return 0;
+}
