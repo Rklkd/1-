@@ -1,37 +1,47 @@
 #include <iostream>
 #include <cmath>
 
+// Определение класса CustomException, который наследуется от std::exception
 class CustomException : public std::exception {
 public:
+    // Конструктор класса CustomException
     CustomException(const std::string& message, double value, int code) 
         : message_(message), value_(value), code_(code) {}
 
+    // Переопределение метода what() для получения сообщения об ошибке
     const char* what() const noexcept override {
         return message_.c_str();
     }
 
+    // Метод для получения значения, вызвавшего ошибку
     double getValue() const {
         return value_;
     }
 
+    // Метод для получения кода ошибки
     int getCode() const {
         return code_;
     }
 
 private:
+    // Закрытые члены класса для хранения сообщения об ошибке, значения и кода
     std::string message_;
     double value_;
     int code_;
 };
 
+// Функция для расчета Z1
 double calculateZ1(double& x) {
     try {
+        // Проверка на недопустимое значение x
         if (x <= 0) {
             throw CustomException("Ошибка: Деление на ноль или корень из отрицательного числа", x, 1);
         }
 
+        // Расчет значения Z1
         return sqrt((3 * x + 2) * (3 * x + 2) - 24 * x) / (3 * sqrt(x) - 2 / sqrt(x));
     } catch (const CustomException& ex) {
+        // Обработка исключения и вывод сообщения об ошибке
         std::cerr << "Ошибка: " << ex.what() << std::endl;
         std::cerr << "Значение, которое привело к ошибке: " << ex.getValue() << std::endl;
         std::cerr << "Код ошибки: " << ex.getCode() << std::endl;
@@ -39,7 +49,9 @@ double calculateZ1(double& x) {
     }
 }
 
+// Функция для расчета Z2
 double calculateZ2(double& x) {
+    // Проверка на недопустимое значение x
     if (x < 0) {
         throw CustomException("Ошибка: Корень из отрицательного числа", x, 2);
     }
@@ -49,24 +61,29 @@ double calculateZ2(double& x) {
 int main() {
     double x;
 
+    // Запрос значения x у пользователя
     std::cout << "Введите значение x: ";
     std::cin >> x;
 
     double z1, z2;
 
     try {
+        // Вычисление Z1 и Z2
         z1 = calculateZ1(x);
         z2 = calculateZ2(x);
 
+        // Вывод результатов на экран
         std::cout << "Z1: " << z1 << std::endl;
         std::cout << "Z2: " << z2 << std::endl;
 
+        // Сравнение значений Z1 и Z2
         if (std::abs(z1 - z2) < 1e-6) {
             std::cout << "Значения Z1 и Z2 приблизительно равны." << std::endl;
         } else {
             std::cout << "Значения Z1 и Z2 не равны." << std::endl;
         }
     } catch (const CustomException& ex) {
+        // Обработка исключения и вывод сообщения об ошибке
         std::cerr << "Ошибка: " << ex.what() << std::endl;
         std::cerr << "Значение, которое привело к ошибке: " << ex.getValue() << std::endl;
         std::cerr << "Код ошибки: " << ex.getCode() << std::endl;
@@ -74,4 +91,3 @@ int main() {
 
     return 0;
 }
-
