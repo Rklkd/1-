@@ -1,31 +1,41 @@
 #include <iostream>
 
+// Шаблонный класс узла (Node), который будет хранить значения и указатели на предыдущий и следующий узлы
 template <typename T>
 class Node {
 public:
-    T value;
-    Node* prev;
-    Node* next;
+    T value;  // Значение узла
+    Node* prev;  // Указатель на предыдущий узел
+    Node* next;  // Указатель на следующий узел
 
+    // Конструктор узла, который принимает значение и инициализирует указатели на nullptr
     Node(T val) : value(val), prev(nullptr), next(nullptr) {}
 };
 
+// Шаблонный класс разреженного массива (SparseArray)
+// ServerClass по умолчанию является классом Node
 template <typename T, typename ServerClass = Node<T>>
 class SparseArray {
 public:
+    // Конструктор по умолчанию, инициализирующий указатели на начало и конец списка
     SparseArray() : head(nullptr), tail(nullptr) {}
 
+    // Метод для добавления элемента в конец списка
     void add(T value) {
+        // Создаем новый узел с заданным значением
         ServerClass* newNode = new ServerClass(value);
+        // Если хвостовой узел существует, добавляем новый узел в конец списка
         if (tail) {
             tail->next = newNode;
             newNode->prev = tail;
             tail = newNode;
         } else {
+            // Если список пуст, новый узел становится и началом, и концом списка
             head = tail = newNode;
         }
     }
 
+    // Метод для отображения всех элементов списка
     void display() {
         ServerClass* current = head;
         while (current) {
@@ -36,16 +46,18 @@ public:
     }
 
 private:
-    ServerClass* head;
-    ServerClass* tail;
+    ServerClass* head;  // Указатель на начало списка
+    ServerClass* tail;  // Указатель на конец списка
 };
 
 int main() {
+    // Создаем объект разреженного массива и добавляем элементы
     SparseArray<int> sparseArray;
     sparseArray.add(1);
     sparseArray.add(2);
     sparseArray.add(3);
 
+    // Отображаем элементы разреженного массива
     sparseArray.display();
     
     return 0;
